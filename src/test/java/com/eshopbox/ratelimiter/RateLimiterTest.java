@@ -103,6 +103,23 @@ class RateLimiterTest {
         );
     }
 
+    @Test
+    void shouldExpireRequestAtExactlyOneSecondBoundary() {
+        MutableClock clock = new MutableClock(
+                Instant.parse("2026-09-23T10:00:00Z")
+        );
+
+        RateLimiter limiter = new RateLimiter(1, clock);
+
+        assertTrue(limiter.allowRequest());
+
+        clock.advanceMillis(999);
+        assertFalse(limiter.allowRequest());
+
+        clock.advanceMillis(1);
+        assertTrue(limiter.allowRequest());
+    }
+
     private static class MutableClock extends Clock {
 
         private Instant currentInstant;
